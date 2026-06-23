@@ -36,7 +36,7 @@ spec:
         {{- toYaml .Values.env | nindent 8 }}
         {{- end }}
         volumeMounts:
-        - name: data-volume
+        - name: data
           mountPath: /app/data
         {{- if .Values.externalSecrets.enabled }}
         {{- range .Values.externalSecrets.items }}
@@ -104,7 +104,7 @@ spec:
 
   volumeClaimTemplates:
   - metadata:
-      name: data-volume
+      name: data
     spec:
       accessModes: [ "ReadWriteOnce" ]
       {{- if .Values.persistence.storageClassName }}
