@@ -1,0 +1,217 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "config": {
+            "description": "Mount `configuration.yaml` from an existing Kubernetes resource. Use `existingSecret` for configs containing credentials (MQTT passwords, network keys). Use `existingConfigMap` for configs without sensitive data (ignored when `existingSecret` is set). The resource must contain a key named `configuration.yaml`. Mutually exclusive with `externalSecrets` — use one approach, not both.",
+            "type": "object",
+            "properties": {
+                "existingConfigMap": {
+                    "description": "Name of an existing ConfigMap containing `configuration.yaml`.",
+                    "type": "string"
+                },
+                "existingSecret": {
+                    "description": "Name of an existing Secret containing `configuration.yaml`.",
+                    "type": "string"
+                }
+            }
+        },
+        "device": {
+            "description": "Host device path for the Zigbee USB adapter (e.g. `/dev/ttyUSB0` or `/dev/serial/by-id/...`). When set, the device node is mounted into the container. Leave empty when using a network-attached coordinator.",
+            "type": "string"
+        },
+        "env": {
+            "description": "Environment variables injected into the Zigbee2MQTT container.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "externalSecrets": {
+            "description": "External Secrets Operator integration for pulling secrets from an external secret store. Requires [ESO](https://external-secrets.io) installed in the cluster. Each item creates an `ExternalSecret` that syncs a secret into a Kubernetes `Secret`, which is then mounted into the Zigbee2MQTT container under `/app/data`.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable ExternalSecret rendering.",
+                    "type": "boolean"
+                },
+                "items": {
+                    "description": "List of secrets to sync.",
+                    "type": "array"
+                }
+            }
+        },
+        "fullnameOverride": {
+            "description": "Override the full resource name prefix.",
+            "type": "string"
+        },
+        "httproutes": {
+            "description": "Gateway API `HTTPRoute` resources. Requires [Gateway API CRDs](https://gateway-api.sigs.k8s.io).",
+            "type": "array"
+        },
+        "image": {
+            "description": "Zigbee2MQTT container image.",
+            "type": "object",
+            "properties": {
+                "pullPolicy": {
+                    "description": "Image pull policy.",
+                    "type": "string"
+                },
+                "repository": {
+                    "description": "Image repository.",
+                    "type": "string"
+                },
+                "tag": {
+                    "description": "Image tag. Defaults to `Chart.appVersion` when empty.",
+                    "type": "string"
+                }
+            }
+        },
+        "ingress": {
+            "description": "Standard Kubernetes Ingress resource. Use when a Gateway API HTTPRoute is not available.",
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Annotations merged onto the Ingress resource.",
+                    "type": "object"
+                },
+                "className": {
+                    "description": "IngressClass name (e.g. `nginx`, `traefik`).",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "Enable Ingress rendering.",
+                    "type": "boolean"
+                },
+                "hostname": {
+                    "description": "Hostname for the Ingress rule.",
+                    "type": "string"
+                },
+                "tls": {
+                    "description": "TLS configuration.",
+                    "type": "array"
+                }
+            }
+        },
+        "nameOverride": {
+            "description": "Override the chart name used in resource names and labels.",
+            "type": "string"
+        },
+        "namespaceLabels": {
+            "description": "Extra labels merged onto the Namespace created by this chart.",
+            "type": "object"
+        },
+        "networkPolicy": {
+            "description": "NetworkPolicy configuration.",
+            "type": "object",
+            "properties": {
+                "cilium": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "description": "Enable CiliumNetworkPolicy rendering. Requires [Cilium CNI](https://cilium.io).",
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "extraEgress": {
+                    "description": "Extra egress rules appended to the NetworkPolicy (both Cilium and Kubernetes).",
+                    "type": "array"
+                },
+                "extraIngress": {
+                    "description": "Extra ingress rules appended to the NetworkPolicy (both Cilium and Kubernetes).",
+                    "type": "array"
+                },
+                "kubernetes": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "description": "Enable standard Kubernetes NetworkPolicy rendering. Works with any CNI that supports NetworkPolicy.",
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "mqttNamespace": {
+                    "description": "Namespace of the MQTT broker (e.g. EMQX). When set, adds an egress rule on port 1883.",
+                    "type": "string"
+                },
+                "prometheusNamespace": {
+                    "description": "Namespace where Prometheus runs. When set, adds an ingress rule allowing Prometheus scraping on port 8080.",
+                    "type": "string"
+                }
+            }
+        },
+        "persistence": {
+            "description": "Persistent storage for the Zigbee2MQTT `/app/data` directory.",
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "description": "Enable the PersistentVolumeClaim.",
+                    "type": "boolean"
+                },
+                "size": {
+                    "description": "Storage size.",
+                    "type": "string"
+                },
+                "storageClassName": {
+                    "description": "StorageClass name. Defaults to the cluster default when empty.",
+                    "type": "string"
+                }
+            }
+        },
+        "resources": {
+            "description": "Resource requests and limits for the Zigbee2MQTT container.",
+            "type": "object",
+            "properties": {
+                "limits": {
+                    "type": "object",
+                    "properties": {
+                        "cpu": {
+                            "type": "string"
+                        },
+                        "memory": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "requests": {
+                    "type": "object",
+                    "properties": {
+                        "cpu": {
+                            "type": "string"
+                        },
+                        "memory": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "service": {
+            "description": "Kubernetes Service configuration.",
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Annotations merged onto the Service resource.",
+                    "type": "object"
+                },
+                "port": {
+                    "description": "Port to expose. Zigbee2MQTT frontend listens on 8080 by default.",
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "Service type.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
