@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.1](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.2.0...zigbee2mqtt-v1.2.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* copy config via init container so zigbee2mqtt can write to data dir ([5de82b7](https://github.com/Sironite/helm-zigbee2mqtt/commit/5de82b7615eca644559ea86b5cc9bfd2062a1457))
+* rename PVC template from data to data-volume for upgrade compatibility ([8038a6b](https://github.com/Sironite/helm-zigbee2mqtt/commit/8038a6b31612a6b0e003eb6462a83f5dd93a8388))
+
+
+### Reverts
+
+* undo PVC rename, chart stays generic ([4067937](https://github.com/Sironite/helm-zigbee2mqtt/commit/40679378369f338db53c4e4a847dd8749de613e5))
+
 ## [1.2.0](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.1.0...zigbee2mqtt-v1.2.0) (2026-06-23)
 
 
