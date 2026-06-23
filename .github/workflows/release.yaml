@@ -37,8 +37,10 @@ jobs:
         run: echo "version=$(grep '^version:' Chart.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
 
       - name: Import GPG signing key
+        env:
+          HELM_GPG_PRIVATE_KEY: ${{ secrets.HELM_GPG_PRIVATE_KEY }}
         run: |
-          echo "${{ secrets.HELM_GPG_PRIVATE_KEY }}" | gpg --batch --import
+          echo "$HELM_GPG_PRIVATE_KEY" | gpg --batch --import
           gpg --export-secret-keys > /tmp/secring.gpg
 
       - name: Package and sign chart
