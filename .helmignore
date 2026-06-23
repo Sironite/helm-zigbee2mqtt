@@ -1,0 +1,17 @@
+.DS_Store
+.git
+.gitignore
+.github
+.helmignore
+*.orig
+*.swp
+Makefile
+AGENTS.md
+CONTRIBUTING.md
+docs/
+scripts/
+tests/
+renovate.json
+artifacthub-repo.yml
+values.yaml.example
+pubkey.gpg

@@ -1,0 +1,7 @@
+zigbee2mqtt Helm Chart
+Copyright 2025 Sironite
+
+This product packages Zigbee2MQTT for deployment on Kubernetes.
+Zigbee2MQTT is developed by Koen Kanters and contributors and licensed
+under the GNU General Public License v3.0.
+https://github.com/Koenkk/zigbee2mqtt

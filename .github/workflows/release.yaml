@@ -1,0 +1,80 @@
+name: Release Chart
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: azure/setup-helm@v5
+
+      - name: Regenerate README
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          docker run --rm \
+            --volume "$PWD:/helm-docs" \
+            --workdir /helm-docs \
+            jnorwood/helm-docs:v1.14.2 \
+            --chart-search-root=. \
+            --template-files=docs/README.md.gotmpl \
+            --output-file=README.md
+          git add README.md
+          git diff --cached --quiet || git commit -m "docs: regenerate README for $(grep '^version:' Chart.yaml | awk '{print $2}')"
+          git push origin HEAD:main
+
+      - name: Get chart version
+        id: chart
+        run: echo "version=$(grep '^version:' Chart.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Import GPG signing key
+        run: |
+          echo "${{ secrets.HELM_GPG_PRIVATE_KEY }}" | gpg --batch --import
+          gpg --export-secret-keys > /tmp/secring.gpg
+
+      - name: Package and sign chart
+        run: |
+          helm package . \
+            --sign \
+            --key "Sironite Helm Charts" \
+            --keyring /tmp/secring.gpg
+
+      - name: Publish to GitHub Pages
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+          CHART_TGZ="zigbee2mqtt-${{ steps.chart.outputs.version }}.tgz"
+          PAGES_URL="https://sironite.github.io/helm-zigbee2mqtt"
+
+          git fetch origin gh-pages
+          git worktree add /tmp/gh-pages origin/gh-pages
+
+          cp "$CHART_TGZ" /tmp/gh-pages/
+          cp "${CHART_TGZ}.prov" /tmp/gh-pages/
+          cp artifacthub-repo.yml /tmp/gh-pages/
+          cd /tmp/gh-pages
+          helm repo index . --url "$PAGES_URL" --merge index.yaml 2>/dev/null || helm repo index . --url "$PAGES_URL"
+          git add .
+          git commit -m "Release ${{ steps.chart.outputs.version }}" || echo "Nothing to commit"
+          git push origin HEAD:gh-pages
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push OCI chart
+        run: |
+          helm push "zigbee2mqtt-${{ steps.chart.outputs.version }}.tgz" oci://ghcr.io/sironite

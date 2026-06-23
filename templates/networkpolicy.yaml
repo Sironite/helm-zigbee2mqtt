@@ -1,0 +1,62 @@
+{{- if .Values.networkPolicy.cilium.enabled }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "zigbee2mqtt.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "zigbee2mqtt.name" . }}
+
+  ingress:
+  - fromEntities:
+    - cluster
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+
+  {{- if .Values.networkPolicy.prometheusNamespace }}
+  - fromEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: {{ .Values.networkPolicy.prometheusNamespace }}
+        app.kubernetes.io/name: prometheus
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+  {{- end }}
+  {{- with .Values.networkPolicy.extraIngress }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+        k8s-app: kube-dns
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: UDP
+      - port: "53"
+        protocol: TCP
+
+  {{- if .Values.networkPolicy.mqttNamespace }}
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: {{ .Values.networkPolicy.mqttNamespace }}
+    toPorts:
+    - ports:
+      - port: "1883"
+        protocol: TCP
+  {{- end }}
+
+  - toEntities:
+    - world
+    - cluster
+  {{- with .Values.networkPolicy.extraEgress }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

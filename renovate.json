@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "labels": ["renovate"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^Chart\\.yaml$"],
+      "matchStrings": ["appVersion: \"(?<currentValue>[^\"]+)\""],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "koenkk/zigbee2mqtt"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "matchManagers": ["helm-values", "regex"],
+      "matchPackageNames": ["koenkk/zigbee2mqtt"],
+      "automerge": false
+    }
+  ]
+}

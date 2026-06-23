@@ -1,0 +1,97 @@
+suite: networkpolicy
+templates:
+  - templates/networkpolicy.yaml
+release:
+  name: zigbee2mqtt
+  namespace: zigbee2mqtt
+
+tests:
+  - it: renders nothing by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders CiliumNetworkPolicy when cilium enabled
+    set:
+      networkPolicy.cilium.enabled: true
+    asserts:
+      - isKind:
+          of: CiliumNetworkPolicy
+      - equal:
+          path: metadata.name
+          value: zigbee2mqtt
+
+  - it: includes prometheus ingress rule when namespace set
+    set:
+      networkPolicy.cilium.enabled: true
+      networkPolicy.prometheusNamespace: monitoring
+    asserts:
+      - contains:
+          path: spec.ingress
+          content:
+            fromEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: monitoring
+                  app.kubernetes.io/name: prometheus
+            toPorts:
+              - ports:
+                  - port: "8080"
+                    protocol: TCP
+
+  - it: includes mqtt egress rule when namespace set
+    set:
+      networkPolicy.cilium.enabled: true
+      networkPolicy.mqttNamespace: emqx
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            toEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: emqx
+            toPorts:
+              - ports:
+                  - port: "1883"
+                    protocol: TCP
+
+  - it: appends extraIngress rules
+    set:
+      networkPolicy.cilium.enabled: true
+      networkPolicy.extraIngress:
+        - fromEndpoints:
+            - matchLabels:
+                k8s:io.kubernetes.pod.namespace: custom-ns
+          toPorts:
+            - ports:
+                - port: "9000"
+    asserts:
+      - contains:
+          path: spec.ingress
+          content:
+            fromEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: custom-ns
+            toPorts:
+              - ports:
+                  - port: "9000"
+
+  - it: appends extraEgress rules
+    set:
+      networkPolicy.cilium.enabled: true
+      networkPolicy.extraEgress:
+        - toEndpoints:
+            - matchLabels:
+                k8s:io.kubernetes.pod.namespace: my-db
+          toPorts:
+            - ports:
+                - port: "5432"
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            toEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: my-db
+            toPorts:
+              - ports:
+                  - port: "5432"

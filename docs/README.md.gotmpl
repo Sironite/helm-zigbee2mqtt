@@ -1,0 +1,110 @@
+{{ template "chart.header" . }}
+
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/helm-zigbee2mqtt)](https://artifacthub.io/packages/search?repo=helm-zigbee2mqtt)
+[![Version: {{ .Version }}](https://img.shields.io/badge/Version-{{ .Version }}-informational?style=flat-square)](https://github.com/Sironite/helm-zigbee2mqtt/releases/tag/zigbee2mqtt-v{{ .Version }}) ![Type: {{ .Type }}](https://img.shields.io/badge/Type-{{ .Type }}-informational?style=flat-square) [![AppVersion: {{ .AppVersion }}](https://img.shields.io/badge/AppVersion-{{ .AppVersion }}-informational?style=flat-square)](https://github.com/Koenkk/zigbee2mqtt/releases/tag/{{ .AppVersion }})
+
+{{ template "chart.description" . }}
+
+This chart deploys [Zigbee2MQTT](https://www.zigbee2mqtt.io) as a `StatefulSet` with persistent
+storage for `/app/data`. It bridges Zigbee devices to an MQTT broker and exposes a web frontend.
+
+## Usage
+
+**Helm repo (GitHub Pages):**
+
+```bash
+helm repo add sironite https://sironite.github.io/helm-zigbee2mqtt
+helm repo update
+helm install zigbee2mqtt sironite/zigbee2mqtt \
+  --namespace zigbee2mqtt --create-namespace \
+  -f my-values.yaml
+```
+
+**OCI (GHCR):**
+
+```bash
+helm install zigbee2mqtt oci://ghcr.io/sironite/zigbee2mqtt \
+  --version {{ template "chart.version" . }} \
+  --namespace zigbee2mqtt --create-namespace \
+  -f my-values.yaml
+```
+
+## Integrations
+
+### External Secrets (`externalSecrets`)
+
+[External Secrets Operator](https://external-secrets.io) (ESO) syncs secrets from an external store
+(1Password, HashiCorp Vault, AWS SSM, …) into Kubernetes `Secret` resources mounted under `/app/data`.
+
+The primary use case is injecting `configuration.yaml` from your secret store so that the MQTT broker
+address, Zigbee adapter settings, and network keys never live in plain-text values files.
+
+```yaml
+externalSecrets:
+  enabled: true
+  items:
+  - name: zigbee2mqtt-config
+    secretStoreRef: my-cluster-secret-store
+    remoteKey: zigbee2mqtt-config
+    secretKey: configuration.yaml
+    defaultMode: 0444
+```
+
+### USB Zigbee adapter (`device`)
+
+When using a serial USB Zigbee coordinator (CC2531, SONOFF Zigbee 3.0 USB Dongle, etc.), mount the
+host device into the container:
+
+```yaml
+device: /dev/serial/by-id/usb-Texas_Instruments_TI_CC2531_USB_CDC___0X00124B0018E00DA5-if00
+```
+
+Leave `device` empty when using a network-attached coordinator (e.g. Zigbee over TCP/IP).
+
+### Gateway API HTTPRoutes (`httproutes`)
+
+Creates `HTTPRoute` resources for use with a [Gateway API](https://gateway-api.sigs.k8s.io) compatible
+controller. Requires Gateway API CRDs installed in the cluster.
+
+```yaml
+httproutes:
+- enabled: true
+  name: zigbee2mqtt-httproute
+  hostname: zigbee.example.com
+  path: /
+  gateway:
+    name: my-gateway
+    namespace: kube-system
+    sectionName: https-listener
+  backend:
+    name: zigbee2mqtt
+    port: 8080
+```
+
+### Cilium NetworkPolicy (`networkPolicy`)
+
+Optional `CiliumNetworkPolicy` that restricts pod traffic to only what Zigbee2MQTT needs.
+Requires [Cilium CNI](https://cilium.io).
+
+```yaml
+networkPolicy:
+  enabled: true
+  prometheusNamespace: monitoring   # allow Prometheus scraping
+  mqttNamespace: emqx               # allow MQTT broker egress
+```
+
+## Prerequisites summary
+
+| Feature | Cluster requirement |
+|---------|-------------------|
+| `externalSecrets.enabled` | [External Secrets Operator](https://external-secrets.io) |
+| `httproutes` | [Gateway API CRDs](https://gateway-api.sigs.k8s.io) |
+| `networkPolicy.enabled` | [Cilium CNI](https://cilium.io) |
+
+## Values
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}

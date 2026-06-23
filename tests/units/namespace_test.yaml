@@ -1,0 +1,25 @@
+suite: namespace
+templates:
+  - templates/namespace.yaml
+release:
+  name: zigbee2mqtt
+  namespace: zigbee2mqtt
+
+tests:
+  - it: enforces baseline PSS by default
+    asserts:
+      - equal:
+          path: metadata.labels["pod-security.kubernetes.io/enforce"]
+          value: baseline
+
+  - it: merges namespaceLabels
+    set:
+      namespaceLabels:
+        gateway.example.com/app-gateway: "true"
+    asserts:
+      - equal:
+          path: metadata.labels["gateway.example.com/app-gateway"]
+          value: "true"
+      - equal:
+          path: metadata.labels["pod-security.kubernetes.io/enforce"]
+          value: baseline

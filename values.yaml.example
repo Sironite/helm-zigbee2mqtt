@@ -1,0 +1,70 @@
+image:
+  repository: koenkk/zigbee2mqtt
+  tag: "2.9.2"
+  pullPolicy: IfNotPresent
+
+env:
+- name: TZ
+  value: Europe/Amsterdam
+
+service:
+  type: ClusterIP
+  port: 8080
+
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClassName: standard
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+namespaceLabels:
+  gateway.example.com/allow: "true"
+
+networkPolicy:
+  cilium:
+    enabled: true
+  kubernetes:
+    enabled: false
+  prometheusNamespace: monitoring
+  mqttNamespace: emqx
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+  hostname: zigbee.example.com
+  tls:
+  - hosts:
+    - zigbee.example.com
+    secretName: zigbee2mqtt-tls
+
+externalSecrets:
+  enabled: true
+  items:
+  - name: zigbee2mqtt-config
+    secretStoreRef: my-secret-store
+    remoteKey: zigbee2mqtt-config
+    secretKey: configuration.yaml
+    defaultMode: 0444
+
+httproutes:
+- enabled: true
+  name: zigbee2mqtt-httproute
+  namespace: zigbee2mqtt
+  hostname: zigbee.example.com
+  path: /
+  gateway:
+    name: my-gateway
+    namespace: kube-system
+    sectionName: https-listener
+  backend:
+    name: zigbee2mqtt
+    port: 8080

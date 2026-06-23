@@ -1,0 +1,46 @@
+{{- if .Values.networkPolicy.kubernetes.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "zigbee2mqtt.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "zigbee2mqtt.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "zigbee2mqtt.selectorLabels" . | nindent 6 }}
+  policyTypes:
+  - Ingress
+  {{- if .Values.networkPolicy.extraEgress }}
+  - Egress
+  {{- end }}
+
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - port: 8080
+      protocol: TCP
+
+  {{- if .Values.networkPolicy.prometheusNamespace }}
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: {{ .Values.networkPolicy.prometheusNamespace }}
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: prometheus
+    ports:
+    - port: 8080
+      protocol: TCP
+  {{- end }}
+  {{- with .Values.networkPolicy.extraIngress }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+
+  {{- if .Values.networkPolicy.extraEgress }}
+  egress:
+  {{- toYaml .Values.networkPolicy.extraEgress | nindent 2 }}
+  {{- end }}
+{{- end }}

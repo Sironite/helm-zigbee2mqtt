@@ -1,0 +1,4 @@
+# KSV014: readOnlyRootFilesystem not set.
+# zigbee2mqtt writes coordinator backup and runtime state to /app/data (PVC-mounted),
+# but may also write to /tmp during startup. Mitigated by: seccompProfile RuntimeDefault.
+KSV014

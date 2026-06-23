@@ -1,0 +1,35 @@
+suite: service
+templates:
+  - templates/service.yaml
+release:
+  name: zigbee2mqtt
+  namespace: zigbee2mqtt
+
+tests:
+  - it: renders ClusterIP service by default
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+
+  - it: renders LoadBalancer with IP and annotations
+    set:
+      service.type: LoadBalancer
+      service.loadBalancerIP: 10.0.0.1
+      service.annotations:
+        io.cilium/lb-ipam-ips: "10.0.0.1"
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.loadBalancerIP
+          value: 10.0.0.1
+      - equal:
+          path: metadata.annotations["io.cilium/lb-ipam-ips"]
+          value: "10.0.0.1"

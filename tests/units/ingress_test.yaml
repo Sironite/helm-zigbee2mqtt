@@ -1,0 +1,51 @@
+suite: ingress
+templates:
+  - templates/Ingress.yaml
+release:
+  name: zigbee2mqtt
+  namespace: zigbee2mqtt
+
+tests:
+  - it: renders nothing by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders Ingress when enabled
+    set:
+      ingress.enabled: true
+      ingress.hostname: zigbee.example.com
+      ingress.className: nginx
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+      - equal:
+          path: spec.rules[0].host
+          value: zigbee.example.com
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8080
+
+  - it: omits ingressClassName when empty
+    set:
+      ingress.enabled: true
+      ingress.hostname: zigbee.example.com
+    asserts:
+      - notExists:
+          path: spec.ingressClassName
+
+  - it: renders TLS when configured
+    set:
+      ingress.enabled: true
+      ingress.hostname: zigbee.example.com
+      ingress.tls:
+        - hosts:
+            - zigbee.example.com
+          secretName: zigbee2mqtt-tls
+    asserts:
+      - equal:
+          path: spec.tls[0].secretName
+          value: zigbee2mqtt-tls
