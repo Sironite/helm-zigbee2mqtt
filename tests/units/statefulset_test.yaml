@@ -66,7 +66,7 @@ tests:
               path: /dev/ttyUSB0
               type: CharDevice
 
-  - it: mounts external secret under /app/data when enabled
+  - it: mounts external secret via init container when enabled
     set:
       externalSecrets.enabled: true
       externalSecrets.items:
@@ -76,9 +76,16 @@ tests:
           secretKey: configuration.yaml
     asserts:
       - contains:
-          path: spec.template.spec.containers[0].volumeMounts
+          path: spec.template.spec.initContainers[0].volumeMounts
           content:
             name: zigbee2mqtt-config
-            mountPath: /app/data/configuration.yaml
+            mountPath: /mnt/secrets/zigbee2mqtt-config/configuration.yaml
             subPath: configuration.yaml
             readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: zigbee2mqtt-config
+            secret:
+              secretName: zigbee2mqtt-config
+              defaultMode: 0440

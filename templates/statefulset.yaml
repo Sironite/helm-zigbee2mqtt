@@ -20,6 +20,41 @@ spec:
         seccompProfile:
           type: RuntimeDefault
 
+      {{- if or .Values.externalSecrets.enabled .Values.config.existingSecret .Values.config.existingConfigMap }}
+      initContainers:
+      - name: config-init
+        image: alpine:3.19
+        command:
+        - sh
+        - -c
+        - |
+          {{- if .Values.externalSecrets.enabled }}
+          {{- range .Values.externalSecrets.items }}
+          [ -f /app/data/{{ .secretKey }} ] || { echo "Copying {{ .secretKey }}"; cp /mnt/secrets/{{ .name }}/{{ .secretKey }} /app/data/{{ .secretKey }}; chmod {{ default 0440 .defaultMode }} /app/data/{{ .secretKey }}; }
+          {{- end }}
+          {{- end }}
+          {{- if or .Values.config.existingSecret .Values.config.existingConfigMap }}
+          [ -f /app/data/configuration.yaml ] || { echo "Copying configuration.yaml"; cp /mnt/config/configuration.yaml /app/data/configuration.yaml; }
+          {{- end }}
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        {{- if .Values.externalSecrets.enabled }}
+        {{- range .Values.externalSecrets.items }}
+        - name: {{ .name }}
+          mountPath: /mnt/secrets/{{ .name }}/{{ .secretKey }}
+          subPath: {{ .secretKey }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- if or .Values.config.existingSecret .Values.config.existingConfigMap }}
+        - name: config-file
+          mountPath: /mnt/config/configuration.yaml
+          subPath: configuration.yaml
+          readOnly: true
+        {{- end }}
+      {{- end }}
+
       containers:
       - name: zigbee2mqtt
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -38,20 +73,6 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /app/data
-        {{- if .Values.externalSecrets.enabled }}
-        {{- range .Values.externalSecrets.items }}
-        - name: {{ .name }}
-          mountPath: /app/data/{{ .secretKey }}
-          subPath: {{ .secretKey }}
-          readOnly: true
-        {{- end }}
-        {{- end }}
-        {{- if or .Values.config.existingSecret .Values.config.existingConfigMap }}
-        - name: config-file
-          mountPath: /app/data/configuration.yaml
-          subPath: configuration.yaml
-          readOnly: true
-        {{- end }}
         {{- if .Values.device }}
         - name: zigbee-device
           mountPath: {{ .Values.device }}
