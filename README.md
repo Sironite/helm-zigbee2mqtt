@@ -31,6 +31,40 @@ helm install zigbee2mqtt oci://ghcr.io/sironite/zigbee2mqtt \
 
 ## Integrations
 
+### Configuration file (`config`)
+
+Mount `configuration.yaml` directly from an existing Kubernetes resource — no External Secrets Operator required.
+
+Use a **Secret** when the config contains credentials (MQTT passwords, Zigbee network keys):
+
+```yaml
+config:
+  existingSecret: zigbee2mqtt-config
+```
+
+Use a **ConfigMap** for setups without sensitive data (network-attached coordinator, public MQTT broker):
+
+```yaml
+config:
+  existingConfigMap: zigbee2mqtt-config
+```
+
+The Secret or ConfigMap must contain a key named `configuration.yaml`. Create it manually:
+
+```bash
+# from a Secret
+kubectl create secret generic zigbee2mqtt-config \
+  --from-file=configuration.yaml=./configuration.yaml \
+  --namespace zigbee2mqtt
+
+# from a ConfigMap
+kubectl create configmap zigbee2mqtt-config \
+  --from-file=configuration.yaml=./configuration.yaml \
+  --namespace zigbee2mqtt
+```
+
+`existingSecret` takes precedence over `existingConfigMap` when both are set. Both are mutually exclusive with `externalSecrets`.
+
 ### External Secrets (`externalSecrets`)
 
 [External Secrets Operator](https://external-secrets.io) (ESO) syncs secrets from an external store
@@ -148,6 +182,9 @@ Both `networkPolicy.cilium` and `networkPolicy.kubernetes` share the same namesp
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| config | object | `{"existingConfigMap":"","existingSecret":""}` | Mount `configuration.yaml` from an existing Kubernetes resource. Use `existingSecret` for configs containing credentials (MQTT passwords, network keys). Use `existingConfigMap` for configs without sensitive data (ignored when `existingSecret` is set). The resource must contain a key named `configuration.yaml`. Mutually exclusive with `externalSecrets` — use one approach, not both. |
+| config.existingConfigMap | string | `""` | Name of an existing ConfigMap containing `configuration.yaml`. |
+| config.existingSecret | string | `""` | Name of an existing Secret containing `configuration.yaml`. |
 | device | string | `""` | Host device path for the Zigbee USB adapter (e.g. `/dev/ttyUSB0` or `/dev/serial/by-id/...`). When set, the device node is mounted into the container. Leave empty when using a network-attached coordinator. |
 | env | list | `[{"name":"TZ","value":"UTC"}]` | Environment variables injected into the Zigbee2MQTT container. |
 | externalSecrets | object | `{"enabled":false,"items":[]}` | External Secrets Operator integration for pulling secrets from an external secret store. Requires [ESO](https://external-secrets.io) installed in the cluster. Each item creates an `ExternalSecret` that syncs a secret into a Kubernetes `Secret`, which is then mounted into the Zigbee2MQTT container under `/app/data`. |

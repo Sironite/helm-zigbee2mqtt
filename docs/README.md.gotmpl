@@ -31,6 +31,40 @@ helm install zigbee2mqtt oci://ghcr.io/sironite/zigbee2mqtt \
 
 ## Integrations
 
+### Configuration file (`config`)
+
+Mount `configuration.yaml` directly from an existing Kubernetes resource — no External Secrets Operator required.
+
+Use a **Secret** when the config contains credentials (MQTT passwords, Zigbee network keys):
+
+```yaml
+config:
+  existingSecret: zigbee2mqtt-config
+```
+
+Use a **ConfigMap** for setups without sensitive data (network-attached coordinator, public MQTT broker):
+
+```yaml
+config:
+  existingConfigMap: zigbee2mqtt-config
+```
+
+The Secret or ConfigMap must contain a key named `configuration.yaml`. Create it manually:
+
+```bash
+# from a Secret
+kubectl create secret generic zigbee2mqtt-config \
+  --from-file=configuration.yaml=./configuration.yaml \
+  --namespace zigbee2mqtt
+
+# from a ConfigMap
+kubectl create configmap zigbee2mqtt-config \
+  --from-file=configuration.yaml=./configuration.yaml \
+  --namespace zigbee2mqtt
+```
+
+`existingSecret` takes precedence over `existingConfigMap` when both are set. Both are mutually exclusive with `externalSecrets`.
+
 ### External Secrets (`externalSecrets`)
 
 [External Secrets Operator](https://external-secrets.io) (ESO) syncs secrets from an external store

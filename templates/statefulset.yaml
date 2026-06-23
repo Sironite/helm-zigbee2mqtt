@@ -46,6 +46,12 @@ spec:
           readOnly: true
         {{- end }}
         {{- end }}
+        {{- if or .Values.config.existingSecret .Values.config.existingConfigMap }}
+        - name: config-file
+          mountPath: /app/data/configuration.yaml
+          subPath: configuration.yaml
+          readOnly: true
+        {{- end }}
         {{- if .Values.device }}
         - name: zigbee-device
           mountPath: {{ .Values.device }}
@@ -79,6 +85,15 @@ spec:
           secretName: {{ .name }}
           defaultMode: {{ default 0440 .defaultMode }}
       {{- end }}
+      {{- end }}
+      {{- if .Values.config.existingSecret }}
+      - name: config-file
+        secret:
+          secretName: {{ .Values.config.existingSecret }}
+      {{- else if .Values.config.existingConfigMap }}
+      - name: config-file
+        configMap:
+          name: {{ .Values.config.existingConfigMap }}
       {{- end }}
       {{- if .Values.device }}
       - name: zigbee-device

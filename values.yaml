@@ -94,6 +94,17 @@ networkPolicy:
   #   ports:
   #     - port: 5432
 
+# -- Mount `configuration.yaml` from an existing Kubernetes resource.
+# Use `existingSecret` for configs containing credentials (MQTT passwords, network keys).
+# Use `existingConfigMap` for configs without sensitive data (ignored when `existingSecret` is set).
+# The resource must contain a key named `configuration.yaml`.
+# Mutually exclusive with `externalSecrets` — use one approach, not both.
+config:
+  # -- Name of an existing Secret containing `configuration.yaml`.
+  existingSecret: ""
+  # -- Name of an existing ConfigMap containing `configuration.yaml`.
+  existingConfigMap: ""
+
 # -- External Secrets Operator integration for pulling secrets from an external secret store.
 # Requires [ESO](https://external-secrets.io) installed in the cluster.
 # Each item creates an `ExternalSecret` that syncs a secret into a Kubernetes `Secret`,
