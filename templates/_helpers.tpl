@@ -32,3 +32,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/name: {{ include "zigbee2mqtt.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{- define "zigbee2mqtt.authentikOutpostSecretName" -}}
+{{- include "zigbee2mqtt.fullname" . }}-authentik-outpost-token
+{{- end }}

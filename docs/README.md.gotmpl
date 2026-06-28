@@ -95,6 +95,53 @@ device: /dev/serial/by-id/usb-Texas_Instruments_TI_CC2531_USB_CDC___0X00124B0018
 
 Leave `device` empty when using a network-attached coordinator (e.g. Zigbee over TCP/IP).
 
+### Authentik outpost (`authentikOutpost`)
+
+Zigbee2MQTT has no built-in authentication. An **Authentik outpost** adds SSO in front of the
+frontend without modifying the app itself.
+
+The outpost is a lightweight reverse proxy sidecar that validates sessions against your central
+[Authentik](https://goauthentik.io) server. Point your HTTPRoute (or Ingress) backend at port `9000`
+of the outpost service instead of port `8080` of Zigbee2MQTT directly.
+
+**Prerequisites:**
+- Authentik installed in the cluster
+- A *Proxy Provider* + *Outpost* configured in Authentik for Zigbee2MQTT
+- The outpost token stored in a secret
+
+**Token secret** — choose one approach:
+
+```yaml
+# Option A: existing Kubernetes Secret (key must be named `token`)
+authentikOutpost:
+  enabled: true
+  authentikHost: "http://authentik-server.authentik.svc"
+  authentikHostBrowser: "https://sso.example.com"
+  existingSecret: "my-outpost-token-secret"
+
+# Option B: pull token from external store via ESO
+authentikOutpost:
+  enabled: true
+  authentikHost: "http://authentik-server.authentik.svc"
+  authentikHostBrowser: "https://sso.example.com"
+  externalSecret:
+    enabled: true
+    secretStoreRef: onepassword-connect
+    remoteKey: authentik-outpost-zigbee2mqtt   # must have a `token` property
+```
+
+When the outpost is enabled, update your HTTPRoute backend to target port `9000`:
+
+```yaml
+httproutes:
+- enabled: true
+  name: zigbee2mqtt-httproute
+  hostname: zigbee.example.com
+  backend:
+    name: zigbee2mqtt-authentik-outpost
+    port: 9000
+```
+
 ### Gateway API HTTPRoutes (`httproutes`)
 
 Creates `HTTPRoute` resources for use with a [Gateway API](https://gateway-api.sigs.k8s.io) compatible
@@ -173,6 +220,8 @@ Both `networkPolicy.cilium` and `networkPolicy.kubernetes` share the same namesp
 | Feature | Cluster requirement |
 |---------|-------------------|
 | `externalSecrets.enabled` | [External Secrets Operator](https://external-secrets.io) |
+| `authentikOutpost.enabled` | [Authentik](https://goauthentik.io) |
+| `authentikOutpost.externalSecret.enabled` | [External Secrets Operator](https://external-secrets.io) |
 | `ingress.enabled` | Any Kubernetes ingress controller |
 | `httproutes` | [Gateway API CRDs](https://gateway-api.sigs.k8s.io) |
 | `networkPolicy.cilium.enabled` | [Cilium CNI](https://cilium.io) |

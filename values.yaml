@@ -124,6 +124,43 @@ externalSecrets:
   #   # File permission on the mounted secret. 0444 = world-readable.
   #   defaultMode: 0444
 
+# -- Authentik proxy outpost for the Zigbee2MQTT frontend.
+# An outpost is a lightweight reverse proxy that enforces Authentik SSO authentication
+# before forwarding traffic to Z2M. Requires [Authentik](https://goauthentik.io) installed
+# in the cluster and a Proxy Provider + Outpost configured for Zigbee2MQTT.
+# When enabled, point the HTTPRoute backend to port 9000 of the outpost service instead of
+# port 8080 of the Zigbee2MQTT service.
+authentikOutpost:
+  # -- Enable the Authentik proxy outpost Deployment and Service.
+  enabled: false
+  # -- Authentik proxy image.
+  image:
+    repository: ghcr.io/goauthentik/proxy
+    tag: "2026.5.3"
+  # -- Cluster-internal URL of the Authentik server (used by the outpost to validate sessions).
+  authentikHost: ""
+  # -- Public-facing Authentik URL (used for browser redirects to the login page).
+  authentikHostBrowser: ""
+  # -- Name of an existing Kubernetes Secret containing the outpost token under key `token`.
+  # Mutually exclusive with `externalSecret`. Create this secret manually or via another tool.
+  existingSecret: ""
+  # -- Fetch the outpost token from an external secret store via ESO instead of an existing secret.
+  externalSecret:
+    # -- Enable ExternalSecret rendering for the outpost token.
+    enabled: false
+    # -- ClusterSecretStore name.
+    secretStoreRef: ""
+    # -- Key in the secret store that holds the outpost token (must have a `token` property).
+    remoteKey: ""
+  # -- Resource requests and limits for the outpost proxy container.
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
 # -- Standard Kubernetes Ingress resource. Use when a Gateway API HTTPRoute is not available.
 ingress:
   # -- Enable Ingress rendering.

@@ -2,6 +2,86 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
+        "authentikOutpost": {
+            "description": "Authentik proxy outpost for the Zigbee2MQTT frontend. An outpost is a lightweight reverse proxy that enforces Authentik SSO authentication before forwarding traffic to Z2M. Requires [Authentik](https://goauthentik.io) installed in the cluster and a Proxy Provider + Outpost configured for Zigbee2MQTT. When enabled, point the HTTPRoute backend to port 9000 of the outpost service instead of port 8080 of the Zigbee2MQTT service.",
+            "type": "object",
+            "properties": {
+                "authentikHost": {
+                    "description": "Cluster-internal URL of the Authentik server (used by the outpost to validate sessions).",
+                    "type": "string"
+                },
+                "authentikHostBrowser": {
+                    "description": "Public-facing Authentik URL (used for browser redirects to the login page).",
+                    "type": "string"
+                },
+                "enabled": {
+                    "description": "Enable the Authentik proxy outpost Deployment and Service.",
+                    "type": "boolean"
+                },
+                "existingSecret": {
+                    "description": "Name of an existing Kubernetes Secret containing the outpost token under key `token`. Mutually exclusive with `externalSecret`. Create this secret manually or via another tool.",
+                    "type": "string"
+                },
+                "externalSecret": {
+                    "description": "Fetch the outpost token from an external secret store via ESO instead of an existing secret.",
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "description": "Enable ExternalSecret rendering for the outpost token.",
+                            "type": "boolean"
+                        },
+                        "remoteKey": {
+                            "description": "Key in the secret store that holds the outpost token (must have a `token` property).",
+                            "type": "string"
+                        },
+                        "secretStoreRef": {
+                            "description": "ClusterSecretStore name.",
+                            "type": "string"
+                        }
+                    }
+                },
+                "image": {
+                    "description": "Authentik proxy image.",
+                    "type": "object",
+                    "properties": {
+                        "repository": {
+                            "type": "string"
+                        },
+                        "tag": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "resources": {
+                    "description": "Resource requests and limits for the outpost proxy container.",
+                    "type": "object",
+                    "properties": {
+                        "limits": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "requests": {
+                            "type": "object",
+                            "properties": {
+                                "cpu": {
+                                    "type": "string"
+                                },
+                                "memory": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "config": {
             "description": "Mount `configuration.yaml` from an existing Kubernetes resource. Use `existingSecret` for configs containing credentials (MQTT passwords, network keys). Use `existingConfigMap` for configs without sensitive data (ignored when `existingSecret` is set). The resource must contain a key named `configuration.yaml`. Mutually exclusive with `externalSecrets` — use one approach, not both.",
             "type": "object",

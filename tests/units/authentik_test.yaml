@@ -1,0 +1,107 @@
+---
+suite: authentik outpost - deployment
+templates:
+  - templates/authentik-outpost-deployment.yaml
+release:
+  name: zigbee2mqtt
+  namespace: zigbee2mqtt
+
+tests:
+  - it: renders nothing when outpost disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders Deployment and Service when outpost enabled
+    set:
+      authentikOutpost.enabled: true
+      authentikOutpost.existingSecret: "my-outpost-token"
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: uses existingSecret as token secret name
+    set:
+      authentikOutpost.enabled: true
+      authentikOutpost.existingSecret: "my-outpost-token"
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.template.spec.containers[0].env[3].valueFrom.secretKeyRef.name
+          value: my-outpost-token
+
+  - it: uses generated secret name when no existingSecret
+    set:
+      authentikOutpost.enabled: true
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[3].valueFrom.secretKeyRef.name
+          value: zigbee2mqtt-authentik-outpost-token
+
+  - it: sets Authentik env vars from values
+    set:
+      authentikOutpost.enabled: true
+      authentikOutpost.authentikHost: "http://authentik-server.authentik.svc"
+      authentikOutpost.authentikHostBrowser: "https://sso.app.damman.tech"
+      authentikOutpost.existingSecret: "token"
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].value
+          value: "http://authentik-server.authentik.svc"
+      - equal:
+          path: spec.template.spec.containers[0].env[2].value
+          value: "https://sso.app.damman.tech"
+
+  - it: Service exposes port 9000
+    set:
+      authentikOutpost.enabled: true
+      authentikOutpost.existingSecret: "token"
+    documentIndex: 1
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.ports[0].port
+          value: 9000
+---
+suite: authentik outpost - externalsecret
+templates:
+  - templates/authentik-outpost-externalsecret.yaml
+release:
+  name: zigbee2mqtt
+  namespace: zigbee2mqtt
+
+tests:
+  - it: renders nothing when outpost disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders nothing when ESO integration disabled
+    set:
+      authentikOutpost.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders ExternalSecret when ESO integration enabled
+    set:
+      authentikOutpost.enabled: true
+      authentikOutpost.externalSecret.enabled: true
+      authentikOutpost.externalSecret.secretStoreRef: onepassword-connect
+      authentikOutpost.externalSecret.remoteKey: authentik-outpost-zigbee2mqtt
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ExternalSecret
+      - equal:
+          path: spec.secretStoreRef.name
+          value: onepassword-connect
+      - equal:
+          path: spec.data[0].remoteRef.key
+          value: authentik-outpost-zigbee2mqtt

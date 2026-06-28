@@ -95,6 +95,53 @@ device: /dev/serial/by-id/usb-Texas_Instruments_TI_CC2531_USB_CDC___0X00124B0018
 
 Leave `device` empty when using a network-attached coordinator (e.g. Zigbee over TCP/IP).
 
+### Authentik outpost (`authentikOutpost`)
+
+Zigbee2MQTT has no built-in authentication. An **Authentik outpost** adds SSO in front of the
+frontend without modifying the app itself.
+
+The outpost is a lightweight reverse proxy sidecar that validates sessions against your central
+[Authentik](https://goauthentik.io) server. Point your HTTPRoute (or Ingress) backend at port `9000`
+of the outpost service instead of port `8080` of Zigbee2MQTT directly.
+
+**Prerequisites:**
+- Authentik installed in the cluster
+- A *Proxy Provider* + *Outpost* configured in Authentik for Zigbee2MQTT
+- The outpost token stored in a secret
+
+**Token secret** — choose one approach:
+
+```yaml
+# Option A: existing Kubernetes Secret (key must be named `token`)
+authentikOutpost:
+  enabled: true
+  authentikHost: "http://authentik-server.authentik.svc"
+  authentikHostBrowser: "https://sso.example.com"
+  existingSecret: "my-outpost-token-secret"
+
+# Option B: pull token from external store via ESO
+authentikOutpost:
+  enabled: true
+  authentikHost: "http://authentik-server.authentik.svc"
+  authentikHostBrowser: "https://sso.example.com"
+  externalSecret:
+    enabled: true
+    secretStoreRef: onepassword-connect
+    remoteKey: authentik-outpost-zigbee2mqtt   # must have a `token` property
+```
+
+When the outpost is enabled, update your HTTPRoute backend to target port `9000`:
+
+```yaml
+httproutes:
+- enabled: true
+  name: zigbee2mqtt-httproute
+  hostname: zigbee.example.com
+  backend:
+    name: zigbee2mqtt-authentik-outpost
+    port: 9000
+```
+
 ### Gateway API HTTPRoutes (`httproutes`)
 
 Creates `HTTPRoute` resources for use with a [Gateway API](https://gateway-api.sigs.k8s.io) compatible
@@ -173,6 +220,8 @@ Both `networkPolicy.cilium` and `networkPolicy.kubernetes` share the same namesp
 | Feature | Cluster requirement |
 |---------|-------------------|
 | `externalSecrets.enabled` | [External Secrets Operator](https://external-secrets.io) |
+| `authentikOutpost.enabled` | [Authentik](https://goauthentik.io) |
+| `authentikOutpost.externalSecret.enabled` | [External Secrets Operator](https://external-secrets.io) |
 | `ingress.enabled` | Any Kubernetes ingress controller |
 | `httproutes` | [Gateway API CRDs](https://gateway-api.sigs.k8s.io) |
 | `networkPolicy.cilium.enabled` | [Cilium CNI](https://cilium.io) |
@@ -182,6 +231,17 @@ Both `networkPolicy.cilium` and `networkPolicy.kubernetes` share the same namesp
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| authentikOutpost | object | `{"authentikHost":"","authentikHostBrowser":"","enabled":false,"existingSecret":"","externalSecret":{"enabled":false,"remoteKey":"","secretStoreRef":""},"image":{"repository":"ghcr.io/goauthentik/proxy","tag":"2026.5.3"},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"20m","memory":"64Mi"}}}` | Authentik proxy outpost for the Zigbee2MQTT frontend. An outpost is a lightweight reverse proxy that enforces Authentik SSO authentication before forwarding traffic to Z2M. Requires [Authentik](https://goauthentik.io) installed in the cluster and a Proxy Provider + Outpost configured for Zigbee2MQTT. When enabled, point the HTTPRoute backend to port 9000 of the outpost service instead of port 8080 of the Zigbee2MQTT service. |
+| authentikOutpost.authentikHost | string | `""` | Cluster-internal URL of the Authentik server (used by the outpost to validate sessions). |
+| authentikOutpost.authentikHostBrowser | string | `""` | Public-facing Authentik URL (used for browser redirects to the login page). |
+| authentikOutpost.enabled | bool | `false` | Enable the Authentik proxy outpost Deployment and Service. |
+| authentikOutpost.existingSecret | string | `""` | Name of an existing Kubernetes Secret containing the outpost token under key `token`. Mutually exclusive with `externalSecret`. Create this secret manually or via another tool. |
+| authentikOutpost.externalSecret | object | `{"enabled":false,"remoteKey":"","secretStoreRef":""}` | Fetch the outpost token from an external secret store via ESO instead of an existing secret. |
+| authentikOutpost.externalSecret.enabled | bool | `false` | Enable ExternalSecret rendering for the outpost token. |
+| authentikOutpost.externalSecret.remoteKey | string | `""` | Key in the secret store that holds the outpost token (must have a `token` property). |
+| authentikOutpost.externalSecret.secretStoreRef | string | `""` | ClusterSecretStore name. |
+| authentikOutpost.image | object | `{"repository":"ghcr.io/goauthentik/proxy","tag":"2026.5.3"}` | Authentik proxy image. |
+| authentikOutpost.resources | object | `{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"20m","memory":"64Mi"}}` | Resource requests and limits for the outpost proxy container. |
 | config | object | `{"existingConfigMap":"","existingSecret":""}` | Mount `configuration.yaml` from an existing Kubernetes resource. Use `existingSecret` for configs containing credentials (MQTT passwords, network keys). Use `existingConfigMap` for configs without sensitive data (ignored when `existingSecret` is set). The resource must contain a key named `configuration.yaml`. Mutually exclusive with `externalSecrets` — use one approach, not both. |
 | config.existingConfigMap | string | `""` | Name of an existing ConfigMap containing `configuration.yaml`. |
 | config.existingSecret | string | `""` | Name of an existing Secret containing `configuration.yaml`. |
