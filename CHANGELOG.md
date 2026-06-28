@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.2.1...zigbee2mqtt-v1.3.0) (2026-06-28)
+
+
+### Features
+
+* add authentikOutpost support for Zigbee2MQTT frontend SSO ([7818333](https://github.com/Sironite/helm-zigbee2mqtt/commit/781833332cadb84c6e15d1efa8bfcd36bd7b6eb9))
+
 ## [1.2.1](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.2.0...zigbee2mqtt-v1.2.1) (2026-06-23)
 
 
