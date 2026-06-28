@@ -1,7 +1,7 @@
 # zigbee2mqtt
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/helm-zigbee2mqtt)](https://artifacthub.io/packages/search?repo=helm-zigbee2mqtt)
-[![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-informational?style=flat-square)](https://github.com/Sironite/helm-zigbee2mqtt/releases/tag/zigbee2mqtt-v1.2.1) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) [![AppVersion: 2.9.2](https://img.shields.io/badge/AppVersion-2.9.2-informational?style=flat-square)](https://github.com/Koenkk/zigbee2mqtt/releases/tag/2.9.2)
+[![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square)](https://github.com/Sironite/helm-zigbee2mqtt/releases/tag/zigbee2mqtt-v1.3.0) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) [![AppVersion: 2.9.2](https://img.shields.io/badge/AppVersion-2.9.2-informational?style=flat-square)](https://github.com/Koenkk/zigbee2mqtt/releases/tag/2.9.2)
 
 Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
 
@@ -24,7 +24,7 @@ helm install zigbee2mqtt sironite/zigbee2mqtt \
 
 ```bash
 helm install zigbee2mqtt oci://ghcr.io/sironite/zigbee2mqtt \
-  --version 1.2.1 \
+  --version 1.3.0 \
   --namespace zigbee2mqtt --create-namespace \
   -f my-values.yaml
 ```
