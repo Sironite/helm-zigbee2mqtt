@@ -97,12 +97,13 @@ Leave `device` empty when using a network-attached coordinator (e.g. Zigbee over
 
 ### Authentik outpost (`authentikOutpost`)
 
-Zigbee2MQTT has no built-in authentication. An **Authentik outpost** adds SSO in front of the
-frontend without modifying the app itself.
+Zigbee2MQTT ships a basic `frontend.auth_token` option, but an **Authentik outpost** gives you
+full SSO with MFA, group-based access, and session management via your existing identity provider.
 
-The outpost is a lightweight reverse proxy sidecar that validates sessions against your central
-[Authentik](https://goauthentik.io) server. Point your HTTPRoute (or Ingress) backend at port `9000`
-of the outpost service instead of port `8080` of Zigbee2MQTT directly.
+The outpost is a separate reverse proxy `Deployment` that validates sessions against your central
+[Authentik](https://goauthentik.io) server before forwarding traffic to Zigbee2MQTT. Point your
+HTTPRoute (or Ingress) backend at port `9000` of the outpost service instead of port `8080` of
+Zigbee2MQTT directly.
 
 **Prerequisites:**
 - Authentik installed in the cluster
