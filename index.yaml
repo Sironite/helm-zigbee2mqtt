@@ -15,7 +15,43 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.9.2
-    created: "2026-06-28T12:19:26.291886523Z"
+    created: "2026-07-09T18:32:29.83170082Z"
+    description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
+    digest: 429c76a8fd9b6eb890f1b1fd2653a294c0e1bb0c8475f986f4cbc1239c947b7e
+    home: https://www.zigbee2mqtt.io
+    icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/zigbee2mqtt.png
+    keywords:
+    - zigbee2mqtt
+    - zigbee
+    - mqtt
+    - iot
+    - home-automation
+    maintainers:
+    - name: sironite
+      url: https://github.com/sironite
+    name: zigbee2mqtt
+    sources:
+    - https://github.com/Koenkk/zigbee2mqtt
+    - https://github.com/sironite/helm-zigbee2mqtt
+    type: application
+    urls:
+    - https://sironite.github.io/helm-zigbee2mqtt/zigbee2mqtt-1.4.0.tgz
+    version: 1.4.0
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/changes: |
+        - kind: added
+          description: Initial release
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Zigbee2MQTT
+          url: https://www.zigbee2mqtt.io
+        - name: Source
+          url: https://github.com/sironite/helm-zigbee2mqtt
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 2.9.2
+    created: "2026-07-09T18:32:29.829873748Z"
     description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
     digest: d3fd8c63a333c93e4c20b0987c62db48c47de7d4a754999569449cbcf71302e0
     home: https://www.zigbee2mqtt.io
@@ -51,7 +87,7 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.9.2
-    created: "2026-06-28T12:19:26.291023347Z"
+    created: "2026-07-09T18:32:29.829096734Z"
     description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
     digest: 9d4393f7c709851cf9e6c7c83c5ed74fb31f097eaa925a951c33f0bbbb860861
     home: https://www.zigbee2mqtt.io
@@ -87,7 +123,7 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.9.2
-    created: "2026-06-28T12:19:26.289567774Z"
+    created: "2026-07-09T18:32:29.82830348Z"
     description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
     digest: 96b6271c5cd3858cdbc726d1eadff2eec6467a1ed303b405ab118d7484964252
     home: https://www.zigbee2mqtt.io
@@ -123,7 +159,7 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.9.2
-    created: "2026-06-28T12:19:26.287916802Z"
+    created: "2026-07-09T18:32:29.827649623Z"
     description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
     digest: 074e20041cca6eaaebbf18ce71caec581be820e585aaedfd04c048a27be0a775
     home: https://www.zigbee2mqtt.io
@@ -159,7 +195,7 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.9.2
-    created: "2026-06-28T12:19:26.286708043Z"
+    created: "2026-07-09T18:32:29.826982893Z"
     description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
     digest: 4e01da5c529dcefc70cbf1f7f1317f9ef8912364e4eade642b071bcf819bb69b
     home: https://www.zigbee2mqtt.io
@@ -181,4 +217,4 @@ entries:
     urls:
     - https://sironite.github.io/helm-zigbee2mqtt/zigbee2mqtt-1.1.0.tgz
     version: 1.1.0
-generated: "2026-06-28T12:19:26.285327034Z"
+generated: "2026-07-09T18:32:29.826161266Z"
