@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.4.0...zigbee2mqtt-v1.4.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* **deps:** bump zigbee2mqtt to 2.12.1 ([166ee0c](https://github.com/Sironite/helm-zigbee2mqtt/commit/166ee0caa13cf8199746c2b8b3f535bc1736ab7b))
+
 ## [1.4.0](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.3.1...zigbee2mqtt-v1.4.0) (2026-06-28)
 
 
