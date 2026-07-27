@@ -1,0 +1,47 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial release
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Zigbee2MQTT
+      url: https://www.zigbee2mqtt.io
+    - name: Source
+      url: https://github.com/sironite/helm-zigbee2mqtt
+  artifacthub.io/prerelease: "false"
+apiVersion: v2
+appVersion: 2.12.1
+description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
+home: https://www.zigbee2mqtt.io
+icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/zigbee2mqtt.png
+keywords:
+- - zigbee2mqtt
+- - zigbee
+- - mqtt
+- - iot
+- - home-automation
+maintainers:
+- - name: sironite
+  url: https://github.com/sironite
+name: zigbee2mqtt
+sources:
+- - https://github.com/Koenkk/zigbee2mqtt
+- - https://github.com/sironite/helm-zigbee2mqtt
+type: application
+version: 1.4.1
+
+...
+files:
+  zigbee2mqtt-1.4.1.tgz: sha256:0f3279cb91c64968c72ed0b2eaf6ae24332331dbdb00c1bc738a4285fa1d7e14
+
+-----BEGIN PGP SIGNATURE-----
+
+wrsEARYKAG0FgmpnUdwJEJGS1fu6+TAiRRQAAAAAABwAIHNhbHRAbm90YXRpb25z
+Lm9wZW5wZ3Bqcy5vcmcHA2HVaEDkxORLh6bp7I5NHMNkOASS60SFZPQxjjszQRYh
+BNxo1ll5fY7SMucbq5GS1fu6+TAiAAC9QgD/daDR+W2akp+VBGVOuV1AVxIs32lX
+NwBr+RfITxJhK9gA/1hQjhw7WgTteT72iCzDNOf15U0ZdaVApA0G+Ze1JYUJ
+-----END PGP SIGNATURE-----
