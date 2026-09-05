@@ -3,7 +3,7 @@ name: zigbee2mqtt
 description: Zigbee2MQTT on Kubernetes — bridges Zigbee devices to MQTT
 type: application
 version: 1.4.1
-appVersion: "2.12.1"
+appVersion: "2.14.1"
 keywords:
   - zigbee2mqtt
   - zigbee
