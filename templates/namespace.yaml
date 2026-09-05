@@ -11,7 +11,4 @@ metadata:
     "pod-security.kubernetes.io/audit-version" "latest"
   }}
   labels:
-    {{- toYaml $pssLabels | nindent 4 }}
-    {{- with .Values.namespaceLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- toYaml (mergeOverwrite $pssLabels (.Values.namespaceLabels | default dict)) | nindent 4 }}
