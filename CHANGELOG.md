@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.4.1...zigbee2mqtt-v1.4.2) (2026-09-05)
+
+
+### Bug Fixes
+
+* merge namespaceLabels into PSS labels instead of duplicating keys ([31f6f52](https://github.com/Sironite/helm-zigbee2mqtt/commit/31f6f52d881bc57da86a031bc382e0ea6669bed3)), closes [#6](https://github.com/Sironite/helm-zigbee2mqtt/issues/6)
+
 ## [1.4.1](https://github.com/Sironite/helm-zigbee2mqtt/compare/zigbee2mqtt-v1.4.0...zigbee2mqtt-v1.4.1) (2026-07-27)
 
 
